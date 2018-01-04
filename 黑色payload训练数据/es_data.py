@@ -34,26 +34,26 @@ def get_indexes_by_time(index_fmt, time_from, time_end):
     return list(index_list)
 
 if __name__ == '__main__':
-    time_start = datetime.datetime(2017, 12, 26)   # 起始查询时间
+    time_start = datetime.datetime(2017, 12, 29)   # 起始查询时间
     time_end = datetime.datetime.now()             # 结束查询时间， 默认是当前
     time_interval = 4  # 查询时间间隔, 单位小时
     time_range = 1     # 每次查询时间长度， 单位小时
 
     # ES 索引
-    # index_fmt = "nile_ml-%Y.%m.%d"  # nile_ml
-    index_fmt = "pprobe-%Y.%m.%d"   # pprobe
+    index_fmt = "nile_ml-%Y.%m.%d"  # nile_ml
+    #index_fmt = "pprobe-%Y.%m.%d"   # pprobe
 
     # 查询条件
     # (nile_ml) 规则没中，中了机器学习  （误报）
     # q = Q("term", is_black=False) & Q("term", rule_result="white") & Q("term", is_ml=True)
     # (nile_ml) 中了黑名单和规则，但是没有中机器学习 （漏报）
-    # q = (Q("term", is_black=True) | Q("term", rule_result="black")) & Q("term", is_ml=False)
+    q = (Q("term", is_black=True) | Q("term", rule_result="black")) & Q("term", is_ml=False) & Q("term", method="POST")
 
     # (pprobe) 只查post数据
-    q = Q("term", method="POST")
+    #q = Q("term", method="POST")
 
-    white_file = open("white.txt", "w")
-    white_file = codecs.open("white_2.txt", "w", encoding="utf-8")
+    white_file = open("loubao.txt", "w")
+    white_file = codecs.open("loubao.txt", "w", encoding="utf-8")
 
     while time_start < time_end:
         search_start, search_end = time_start, time_start + datetime.timedelta(hours=time_range)
@@ -69,11 +69,11 @@ if __name__ == '__main__':
             if postdata.startswith("{") and not postdata.endswith("}"):
                 print "not json:" + postdata
                 continue
-            if postdata.startswith("{"):
-                jsondata = json_decode(postdata)
-                values = get_value_data(jsondata)
-            else:
-                values = get_value_form(postdata)
+#            if postdata.startswith("{"):
+#                jsondata = json_decode(postdata)
+#                values = get_value_data(jsondata)
+#            else:
+#                values = get_value_from(postdata)
             try:
                 white_file.write(postdata+"\n")
             except:
